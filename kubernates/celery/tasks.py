@@ -5,7 +5,6 @@ from celery import Celery
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from mail_content import getMailContent
-from redis import Redis, ConnectionPool
 from models.File import File
 from utils import decrypt
 from ASR.ASR_Module import transcribe
@@ -15,6 +14,7 @@ from OCR.Craft_TrOCR import image_to_texts
 from celery import Task
 import smtplib
 import env
+from redis import Sentinel
 
 dsn="mysql+pymysql://{}:{}@{}/{}".format(env.MYSQL_USER,env.MYSQL_PASSWORD,env.MYSQL_ADDRESS,env.MYSQL_DB)
 
@@ -27,16 +27,19 @@ REDIS_ADDRESS  =  env.REDIS_ADDRESS
 REDIS_HOST  =  env.REDIS_HOST
 REDIS_PORT  =  env.REDIS_PORT
 REDIS_DB  =  env.REDIS_DB
+REDIS_MASTER  =  env.REDIS_MASTER
 MAIL_USER=env.MAIL_USER
 MAIL_PASSWORD=env.MAIL_PASSWORD
 
 celery_app = Celery(
     "celery",
-    broker="redis://:{}@{}/{}".format(REDIS_PASSWORD,REDIS_ADDRESS,REDIS_DB),
-    summarize_expires=3600,
+    result_expires=3600,
 )
+celery_app.conf.broker_url='sentinel://:{}@{}'.format(REDIS_PASSWORD,REDIS_ADDRESS)
+celery_app.conf.broker_transport_options={'master_name':REDIS_MASTER,'sentinel_kwargs':{'password':REDIS_PASSWORD},'max_retries': 3}
+celery_app.conf.broker_connection_retry_on_startup=True
 
-pool = ConnectionPool(host=REDIS_HOST, port=int(REDIS_PORT), db=int(REDIS_DB),password=REDIS_PASSWORD)
+sentinel = Sentinel([(REDIS_HOST, int(REDIS_PORT))], sentinel_kwargs={'password': REDIS_PASSWORD})
 
 class DatabaseTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
