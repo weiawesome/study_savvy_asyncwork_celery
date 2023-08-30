@@ -8,7 +8,6 @@ RUN adduser --disabled-password --gecos '' celery_user
 WORKDIR /celery
 
 COPY requirements.txt .
-RUN pip install celery['redis']
 RUN pip3 install torch --index-url https://download.pytorch.org/whl/cu118
 RUN pip3 install torchaudio --index-url https://download.pytorch.org/whl/cu118
 RUN pip install -r requirements.txt

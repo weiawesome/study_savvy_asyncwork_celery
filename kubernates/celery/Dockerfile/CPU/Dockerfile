@@ -9,12 +9,13 @@ WORKDIR /celery
 
 COPY requirements.txt .
 
-RUN pip install celery['redis']
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
+RUN pip install gevent torch torchaudio
 
 RUN apt-get update && apt-get install -y ffmpeg
 
 COPY . .
+
 USER celery_user
 
 CMD ["celery", "-A", "tasks", "worker","--loglevel=info","-c","5","-P","gevent"]

@@ -153,7 +153,7 @@ def NLP_edit_ASR(self,id,content, prompt,api_key,access_token,key_api_key,key_ac
 
 @celery_app.task(bind=True)
 def Mail_sent(self,mail):
-    redis_client = Redis(connection_pool=pool)
+    redis_client = sentinel.master_for(REDIS_MASTER,socket_timeout=0.1, password=REDIS_PASSWORD)
     code = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
     email_body = getMailContent(code=code)
     with smtplib.SMTP(host="smtp.gmail.com") as smtp:
