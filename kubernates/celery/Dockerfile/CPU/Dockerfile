@@ -7,14 +7,14 @@ RUN apt-get update && apt-get install -y \
 RUN adduser --disabled-password --gecos '' celery_user
 WORKDIR /celery
 
-COPY requirements.txt .
+COPY ../../requirements.txt .
 
 RUN pip install -r requirements.txt
 RUN pip install gevent torch torchaudio
 
 RUN apt-get update && apt-get install -y ffmpeg
 
-COPY . .
+COPY ../.. .
 
 USER celery_user
 
