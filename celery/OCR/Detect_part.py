@@ -14,7 +14,7 @@ def get_Boxes(image,output_dir= 'outputs/'):
         text_threshold=0.7,
         link_threshold=0.2,
         low_text=0.5,
-        cuda=True,
+        cuda=torch.cuda.is_available,
         long_size=1280
     )
     # exported_file_paths = export_detected_regions(

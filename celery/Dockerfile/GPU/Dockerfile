@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM nvidia/cuda:12.0.0-cudnn8-devel-ubuntu22.04
 
 RUN apt-get update && apt-get install -y \
     python3-pip \
@@ -8,9 +8,16 @@ RUN adduser --disabled-password --gecos '' celery_user
 WORKDIR /celery
 
 COPY ../../requirements.txt .
-RUN pip install torch torchaudio gevent
+
+RUN pip3 install torch --index-url https://download.pytorch.org/whl/cu118
+RUN pip3 install torchaudio --index-url https://download.pytorch.org/whl/cu118
+
 RUN pip install -r requirements.txt
+
 RUN apt-get update && apt-get install -y ffmpeg
+
+RUN pip install gevent
+
 COPY ../.. .
 USER celery_user
 
