@@ -158,7 +158,7 @@ git clone https://github.com/weiawesome/study_savvy_asyncwork_celery.git
 cd ./celery
 
 # Choose you version ( CPU/GPU )
-cd dockerfile/cpu or cd dockerfile/gpu
+cd Dockerfile/CPU or cd Dockerfile/GPU
 
 docker build -t ImageName .
 ```
