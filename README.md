@@ -7,9 +7,9 @@
 > 
 > It will provide a task queue, then the back-end can push task in the task queue.
 > 
-> Then it also provide some workers to resolve the tasks.
+> Then it also provide some workers to resolve the [tasks](#tasks).
 > 
-> Task queue can be lots of options, and the project's task queue is using redis.
+> This project only build the image for the async-work, and it should combine with other project to have whole service.
 
 ## Study-Savvy
 > Supply main two service
@@ -33,15 +33,30 @@
 > >
 > > (Image just part of document) 
 > > 
-> > Details in document can see the [docs/openapi.yaml](./docs/openapi.yaml)
+> > Details in document can see the 
 > >
-> > or visit the API-Document 
+> > or visit the [API-Document](https://github.com/weiawesome/study_savvy_api_go/blob/master/docs/openapi.yaml)
 > > 
 > > URL : https://study-savvy.com/api/docs/
 ## Celery
-![celery.png](celery.png)
+![celery.png](resource/celery.png)
 > ### Celery
-> Python package for Distributed Task Queue
+> Celery is a Python package that provides a distributed task queue framework. 
+> </br> It allows you to manage and distribute tasks asynchronously across a cluster of worker nodes. 
+> </br> This is particularly useful for handling time-consuming or resource-intensive tasks in your applications without blocking the main program's execution.
+>
+> Key features of Celery include:
+> 
+> 1. Distributed Task Execution.
+> 2. Asynchronous and Synchronous Execution.
+> 3. Task Queues.
+> 4. Flexible Configuration.
+> 5. Result Storage. 
+> 6. Task Retry and Error Handling.
+> 7. Task Chaining and Grouping. 
+> 8. Integration with Message Brokers 
+> 
+> Overall, Celery is a powerful tool for managing the execution of tasks in a distributed and asynchronous manner, making it an excellent choice for applications that require efficient background processing and task management.
 
 ## Tasks
 > ### AsrMission
@@ -133,3 +148,17 @@
 > In the front-end will encrypt the secret-key(for encrypt api-key or access-token) by public-key in RSA.  
 > 
 > Then we will take the content to decrypt the AES part.
+
+## How to install
+```
+git clone https://github.com/weiawesome/study_savvy_asyncwork_celery.git
+```
+## How to start
+```
+cd ./celery
+
+# Choose you version ( CPU/GPU )
+cd dockerfile/cpu or cd dockerfile/gpu
+
+docker build -t ImageName .
+```

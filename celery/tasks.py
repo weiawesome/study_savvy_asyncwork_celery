@@ -5,6 +5,7 @@ from celery import Celery
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from mail_content import getMailContent
+from redis import Redis, ConnectionPool
 from models.File import File
 from utils import decrypt
 from ASR.ASR_Module import transcribe
@@ -14,9 +15,8 @@ from OCR.Craft_TrOCR import image_to_texts
 from celery import Task
 import smtplib
 import env
-from redis import Sentinel
 
-dsn="mysql+pymysql://{}:{}@{}/{}".format(env.MYSQL_USER,env.MYSQL_PASSWORD,env.MYSQL_ADDRESS,env.MYSQL_DB)
+dsn="mysql+pymysql://{}:{}@{}/{}".format(env.MYSQL_USER, env.MYSQL_PASSWORD, env.MYSQL_ADDRESS, env.MYSQL_DB)
 
 engine = create_engine(dsn)
 metadata = MetaData()
@@ -27,19 +27,16 @@ REDIS_ADDRESS  =  env.REDIS_ADDRESS
 REDIS_HOST  =  env.REDIS_HOST
 REDIS_PORT  =  env.REDIS_PORT
 REDIS_DB  =  env.REDIS_DB
-REDIS_MASTER  =  env.REDIS_MASTER
-MAIL_USER=env.MAIL_USER
-MAIL_PASSWORD=env.MAIL_PASSWORD
+MAIL_USER= env.MAIL_USER
+MAIL_PASSWORD= env.MAIL_PASSWORD
 
 celery_app = Celery(
     "celery",
-    result_expires=3600,
+    broker="redis://:{}@{}/{}".format(REDIS_PASSWORD,REDIS_ADDRESS,REDIS_DB),
+    summarize_expires=3600,
 )
-celery_app.conf.broker_url='sentinel://:{}@{}'.format(REDIS_PASSWORD,REDIS_ADDRESS)
-celery_app.conf.broker_transport_options={'master_name':REDIS_MASTER,'sentinel_kwargs':{'password':REDIS_PASSWORD},'max_retries': 3}
-celery_app.conf.broker_connection_retry_on_startup=True
 
-sentinel = Sentinel([(REDIS_HOST, int(REDIS_PORT))], sentinel_kwargs={'password': REDIS_PASSWORD})
+pool = ConnectionPool(host=REDIS_HOST, port=int(REDIS_PORT), db=int(REDIS_DB),password=REDIS_PASSWORD)
 
 class DatabaseTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
@@ -153,7 +150,7 @@ def NLP_edit_ASR(self,id,content, prompt,api_key,access_token,key_api_key,key_ac
 
 @celery_app.task(bind=True)
 def Mail_sent(self,mail):
-    redis_client = sentinel.master_for(REDIS_MASTER,socket_timeout=0.1, password=REDIS_PASSWORD)
+    redis_client = Redis(connection_pool=pool)
     code = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
     email_body = getMailContent(code=code)
     with smtplib.SMTP(host="smtp.gmail.com") as smtp:
