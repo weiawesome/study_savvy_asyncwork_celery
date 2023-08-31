@@ -7,7 +7,7 @@
 > 
 > It will provide a task queue, then the back-end can push task in the task queue.
 > 
-> Then it also provide some workers to resolve the [tasks](#tasks).
+> Then it also provide some workers to resolve the [Tasks](#tasks).
 > 
 > This project only build the image for the async-work, and it should combine with other project to have whole service.
 
